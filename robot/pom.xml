@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.your.company</groupId>
+    <artifactId>robot</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>robot</name>
+    <description>robot</description>
+    <!-- Output to jar format -->
+    <packaging>jar</packaging>
+
+    <properties>
+        <cucumber.options>--tags '@TOSPECIFY'</cucumber.options>
+        <scenario.name>@TOSPECIFY</scenario.name>
+        <crypto.key></crypto.key>
+        <ciToolResourcesPath>src/test/resources</ciToolResourcesPath>
+        <noraui.version>4.4.0</noraui.version>
+        <noraui-material-plugin.version>1.0.0</noraui-material-plugin.version>
+        <noraui-bootstrap-plugin.version>1.0.0</noraui-bootstrap-plugin.version>
+        <noraui-select2-plugin.version>1.0.0</noraui-select2-plugin.version>
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <download-maven-plugin.version>1.5.0</download-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+        <sonar-maven-plugin.version>3.3.0.603</sonar-maven-plugin.version>
+        <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
+        <sonar.sources>${project.basedir}/src/main/java/</sonar.sources>
+        <sonar.junit.reportPaths>${project.build.directory}/surefire-reports/junit</sonar.junit.reportPaths>
+        <sonar.surefire.reportPaths>${project.build.directory}/surefire-reports</sonar.surefire.reportPaths>
+        <sonar.jacoco.directory>${project.testresult.directory}/coverage/jacoco</sonar.jacoco.directory>
+        <sonar.jacoco.reportPaths>${sonar.jacoco.directory}/jacoco.exec</sonar.jacoco.reportPaths>
+        <sonar.tests>${project.basedir}/src/test/</sonar.tests>
+        <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+        <sonar.exclusions>**/NoraRobotRunnerApi.java,**/ScenarioInitiatorRunner.java,**/NoraUiCLI.java,**/Counter.java</sonar.exclusions>
+        <sonar.test.exclusions>**/*.css</sonar.test.exclusions>
+        <build.date>${maven.build.timestamp}</build.date>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <env>dev</env>
+    </properties>
+
+    <dependencies>
+
+        <!-- Non-Regression Automation for User Interfaces -->
+        <dependency>
+            <groupId>com.github.noraui</groupId>
+            <artifactId>noraui</artifactId>
+            <version>${noraui.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.oracle.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                </exclusion>
+		    </exclusions>
+        </dependency>
+        
+        <!-- Material-plugin for Non-Regression Automation for User Interfaces -->
+        <dependency>
+			<groupId>com.github.noraui</groupId>
+			<artifactId>noraui-material-plugin</artifactId>
+			<version>${noraui-material-plugin.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.noraui</groupId>
+					<artifactId>noraui</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jenkins-releases</id>
+            <url>http://repo.jenkins-ci.org/releases/</url>
+        </repository>
+        <repository>
+            <id>sonatype-releases</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+    <build>
+
+        <filters>
+            <filter>src/test/resources/environments/${env}.properties</filter>
+        </filters>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <useIncrementalCompilation>true</useIncrementalCompilation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <configuration>
+                    <escapeWindowsPaths>false</escapeWindowsPaths>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <resources>
+            <resource>
+                <!-- copy and filter properties files -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <!-- copy and filter properties files -->
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.ini</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <!-- copy without filtering .feature -->
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.feature</include>
+                </includes>
+            </testResource>
+        </testResources>
+
+    </build>
+
+    <profiles>
+        <profile>
+            <id>javadoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <configuration>
+                            <source>8</source>
+							              <doclint>none</doclint>
+                            <aggregate>true</aggregate>
+                            <stylesheetfile>${basedir}/src/test/resources/dev/stylesheet.css</stylesheetfile>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>drivers</id>
+            <build>
+                <plugins>
+                    <plugin>
+						<groupId>com.googlecode.maven-download-plugin</groupId>
+						<artifactId>download-maven-plugin</artifactId>
+						<version>${download-maven-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>download-googlechrome-webdriver4win</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>wget</goal>
+								</goals>
+								<configuration>
+									<unpack>true</unpack>
+									<url>https://chromedriver.storage.googleapis.com/86.0.4240.22/chromedriver_win32.zip</url>
+                                    <outputDirectory>src/test/resources/drivers/windows/googlechrome/64bit/</outputDirectory>
+                                    <md5>bfbb2a4b657284571b390002086b5eb3</md5>
+								</configuration>
+							</execution>
+							<execution>
+								<id>download-googlechrome-webdriver4linux</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>wget</goal>
+								</goals>
+								<configuration>
+									<unpack>true</unpack>
+									<url>https://chromedriver.storage.googleapis.com/86.0.4240.22/chromedriver_linux64.zip</url>
+                                    <outputDirectory>src/test/resources/drivers/linux/googlechrome/64bit/</outputDirectory>
+                                    <md5>0b080bc38261fe200602d8c525931ea7</md5>
+								</configuration>
+							</execution>
+							<execution>
+								<id>download-googlechrome-webdriver4mac</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>wget</goal>
+								</goals>
+								<configuration>
+									<unpack>true</unpack>
+									<url>https://chromedriver.storage.googleapis.com/86.0.4240.22/chromedriver_mac64.zip</url>
+                                    <outputDirectory>src/test/resources/drivers/mac/googlechrome/64bit/</outputDirectory>
+                                    <md5>f9ed96fe96d5a23979f3ae9648643047</md5>
+								</configuration>
+							</execution>
+							<execution>
+                <id>download-geckodriver-webdriver4win</id>
+		            <phase>compile</phase>
+		            <goals>
+		              <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		              <unpack>true</unpack>
+		              <url>https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-win64.zip</url>
+		              <outputDirectory>src/test/resources/drivers/windows/firefox/64bit/</outputDirectory>
+		              <md5>1d70a4fad9997d1d912a8b7dd1e89bda</md5>
+		            </configuration>
+		          </execution>
+					  </executions>
+					</plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- preIC -->
+        <profile>
+            <id>preIC</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>Counter-execution</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.your.company.indus.Counter</mainClass>
+                                    <arguments>
+                                        <argument>Excel</argument>
+                                    </arguments>
+                                    <systemProperties>
+                                        <systemProperty>
+                                            <key>resourcespath</key>
+                                            <value>${ciToolResourcesPath}</value>
+                                        </systemProperty>
+                                        <systemProperty>
+                                            <key>crypto.key</key>
+                                            <value>${crypto.key}</value>
+                                        </systemProperty>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- postIC -->
+        <profile>
+            <id>postIC</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>copy-gherkin-formatter-file</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target name="copy">
+                                        <copy
+                                            file="src/test/resources/dev/formatter.js"
+                                            tofile="target/reports/html/formatter.js"
+                                            overwrite="true" />
+                                        <copy
+                                            file="src/test/resources/dev/style.css"
+                                            tofile="target/reports/html/style.css"
+                                            overwrite="true" />    
+                                        <copy
+                                            file="src/test/resources/dev/index.html"
+                                            tofile="target/reports/html/index.html"
+                                            overwrite="true" />
+                                        <copy
+                                            file="src/test/resources/dev/counter.js"
+                                            tofile="target/reports/html/counter.js"
+                                            overwrite="true" />
+                                        <replace file="target/reports/html/index.html">
+										    <replacefilter>
+										        <replacetoken>@build-date@</replacetoken>
+										        <replacevalue>${build.date}</replacevalue>
+										  </replacefilter>
+										</replace>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- scenarioInitiator -->
+        <profile>
+            <id>scenarioInitiator</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>ScenarioInitiator-execution</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.your.company.main.ScenarioInitiatorRunner</mainClass>
+                                    <arguments>
+                                        <argument>${scenario.name}</argument>
+                                    </arguments>
+                                    <systemProperties>
+                                        <systemProperty>
+                                            <key>resourcespath</key>
+                                            <value>${ciToolResourcesPath}</value>
+                                        </systemProperty>
+                                        <systemProperty>
+                                            <key>crypto.key</key>
+                                            <value>${crypto.key}</value>
+                                        </systemProperty>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>unit-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>pre-unit-test</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <destFile>${sonar.jacoco.reportPaths}</destFile>
+                                    <propertyName>surefireArgLine</propertyName>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>post-unit-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <dataFile>${sonar.jacoco.reportPaths}</dataFile>
+                                    <outputDirectory>${sonar.jacoco.directory}</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven-surefire-plugin.version}</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <resourcespath>src/test/resources</resourcespath>
+                                <cucumber.options>${cucumber.options}</cucumber.options>
+                                <uid>${uid}</uid>
+                                <password>${password}</password>
+                                <cookie>${cookie}</cookie>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/*UT.java</include>
+                                <include>**/NoraRobotRunner.java</include>
+                            </includes>
+                            <argLine>-Dfile.encoding=UTF-8 ${surefireArgLine}</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>${sonar-maven-plugin.version}</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>robot</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven-surefire-plugin.version}</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <cucumber.options>${cucumber.options}</cucumber.options>
+                                <resourcespath>src/test/resources</resourcespath>
+                                <SpeedRegulator.annotation.enable>false</SpeedRegulator.annotation.enable>
+                                <SpeedRegulators.annotation.enable>false</SpeedRegulators.annotation.enable>
+                                <Time.annotation.enable>false</Time.annotation.enable>
+                                <Times.annotation.enable>false</Times.annotation.enable>
+                                <uid>${uid}</uid>
+                                <password>${password}</password>
+                                <cookie>${cookie}</cookie>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/NoraRobotRunner.java</include>
+                            </includes>
+                            <argLine>-Dfile.encoding=UTF-8</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- environment cible -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <env>dev</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>ci</id>
+            <properties>
+                <env>ci</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <env>prod</env>
+            </properties>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <!-- Publish snapshots here -->
+        <snapshotRepository>
+            <id>sonatype-nexus</id>
+            <name>snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <!-- Publish versioned releases here -->
+        <repository>
+            <id>sonatype-nexus</id>
+            <name>releases</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+</project>

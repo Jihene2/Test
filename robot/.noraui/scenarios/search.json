@@ -1,0 +1,6 @@
+{
+  "name": "search",
+  "description": "Scenario that 1st sample. Is it a search on Google search motor.",
+  "application": "google",
+  "status": true
+}
